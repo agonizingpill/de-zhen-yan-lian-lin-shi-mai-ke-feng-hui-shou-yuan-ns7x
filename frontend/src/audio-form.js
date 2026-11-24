@@ -5,9 +5,11 @@ export const write=role=>role==='operator'||role==='reviewer';
 export function field(name,label,attrs={}) {
   return el('label',{},el('span',{},label),el('input',{name,required:'',...attrs}));
 }
-export function choices(name,label,rows,selected) {
-  return el('label',{},el('span',{},label),el('select',{name,required:''},rows.map(([value,text])=>
-    el('option',{value,selected:value===selected?'':undefined},text))));
+export function choices(name,label,rows,selected,multiple=false) {
+  const select=el('select',{name,required:''},rows.map(([value,text])=>
+    el('option',{value,selected:(multiple?(selected||[]):[selected]).includes(value)?'':undefined},text)));
+  if(multiple){select.multiple=true;select.size=Math.min(6,rows.length||1);}
+  return el('label',{},el('span',{},label),select);
 }
 export function run(id,fields,text,action) {
   const button=el('button',{type:'submit'},text);

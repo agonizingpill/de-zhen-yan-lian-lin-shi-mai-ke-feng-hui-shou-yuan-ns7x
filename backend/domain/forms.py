@@ -42,3 +42,26 @@ class RelineProbe(Input):
 
 class Restore(Input):
     token: Token
+
+
+class ReviewBatch(Input):
+    code: Code
+    findings: list[Code] = Field(min_length=1, max_length=160)
+
+
+class ReviewListen(Input):
+    batch: Code
+    window: Code
+    verdict: Literal["howl", "clear"]
+    note: Annotated[str, StringConstraints(strip_whitespace=True, max_length=240)] | None = None
+
+
+class ReviewArbitration(Input):
+    batch: Code
+    window: Code
+    verdict: Literal["howl", "clear"]
+    note: Annotated[str, StringConstraints(strip_whitespace=True, max_length=240)] | None = None
+
+
+class ReviewSeal(Input):
+    batch: Code

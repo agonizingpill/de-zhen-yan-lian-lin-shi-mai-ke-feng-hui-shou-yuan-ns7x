@@ -1,13 +1,15 @@
 from fastapi import APIRouter,Depends
 from core.auth import actor,allow
-from core.roles import REVIEW,WRITE
-from domain import catalog,channel,diagnose,soundcheck
-from domain.forms import Capture,Diagnose,Isolate,RelineProbe,Restore,SaveFinding
+from core.roles import ARBITRATION, REVIEW, REVIEW_SEATS, WRITE
+from domain import catalog,channel,diagnose,reviews,soundcheck
+from domain.forms import (Capture, Diagnose, Isolate, RelineProbe, Restore,
+                          ReviewArbitration, ReviewBatch, ReviewListen, ReviewSeal, SaveFinding)
 
 patch=APIRouter(prefix="/patch")
 audio=APIRouter(prefix="/audio")
 feedback=APIRouter(prefix="/feedback")
-routers=(patch,audio,feedback)
+review=APIRouter(prefix="/review")
+routers=(patch,audio,feedback,review)
 
 
 @patch.get("")
@@ -59,3 +61,36 @@ def verify(code:str,form:RelineProbe,user=Depends(actor)):
 def restore(code:str,form:Restore,user=Depends(actor)):
     allow(user,REVIEW)
     return channel.restore(code,form,user)
+
+
+@review.get("")
+def review_batches(user=Depends(actor)):
+    return reviews.list_batches()
+
+
+@review.post("/batch",status_code=201)
+def review_create(form:ReviewBatch,user=Depends(actor)):
+    allow(user,REVIEW_SEATS)
+    return reviews.create_batch(form,user)
+
+
+@review.get("/{code}")
+def review_detail(code:str,user=Depends(actor)):
+    return reviews.detail(code,user)
+
+
+@review.post("/listen",status_code=201)
+def review_listen(form:ReviewListen,user=Depends(actor)):
+    allow(user,REVIEW_SEATS)
+    return reviews.submit_listen(form,user)
+
+
+@review.post("/arbitrate",status_code=201)
+def review_arbitrate(form:ReviewArbitration,user=Depends(actor)):
+    allow(user,ARBITRATION)
+    return reviews.decide_arbitration(form,user)
+
+
+@review.post("/seal",status_code=201)
+def review_seal(form:ReviewSeal,user=Depends(actor)):
+    return reviews.seal(form,user)

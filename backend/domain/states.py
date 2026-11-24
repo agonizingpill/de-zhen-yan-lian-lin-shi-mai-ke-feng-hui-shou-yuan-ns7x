@@ -21,3 +21,13 @@ class Finding(StrEnum):
 class Ticket(StrEnum):
     ISOLATED = "isolated"
     RESTORED = "restored"
+
+
+class Howl(StrEnum):
+    HOWL = "howl"
+    CLEAR = "clear"
+
+
+class ReviewSeat(StrEnum):
+    A = "a"
+    B = "b"

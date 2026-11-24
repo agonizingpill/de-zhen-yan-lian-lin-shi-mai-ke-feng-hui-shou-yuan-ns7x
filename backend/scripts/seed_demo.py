@@ -2,7 +2,8 @@ import json
 from sqlalchemy import func, select
 
 from core.db import transaction
-from domain.demo import FIXTURES
+from domain.demo import FIXTURES, review_seed
+from domain import review_tables  # noqa: F401  注册漏报复核表到 metadata
 
 def seed():
     sizes = {}
@@ -13,6 +14,7 @@ def seed():
                 if present is None:
                     conn.execute(table.insert().values(**row))
             sizes[table.name] = conn.scalar(select(func.count()).select_from(table))
+    review_seed()
     return sizes
 
 if __name__ == '__main__':
